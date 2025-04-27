@@ -3,7 +3,11 @@ import { getMap, removeElement, updateMap } from "./map";
 
 const io = new Server({
   cors: {
-    origin: ["http://localhost:3001"],
+    origin: [
+      "http://localhost:3001",
+      "http://10.19.17.213:3001",
+      "https://imprankster.github.io",
+    ],
     credentials: true,
   },
 });
@@ -24,3 +28,5 @@ io.on("connection", (socket) => {
 });
 
 io.listen(3005);
+
+console.log(`Server started: Listening on ${3005}`);

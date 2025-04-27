@@ -34,33 +34,6 @@ function drawFigure(pose, conn) {
 
 // Sketch Lifecycle
 
-function setup() {
-  createCanvas(windowWidth, windowHeight);
-  setup_fullScreenButton();
-  // Create the video capture and hide the element.
-  capture = createCapture(VIDEO);
-  capture.size(CAPTURE_WIDTH, CAPTURE_HEIGHT);
-  capture.hide();
-  faceConn = faceMesh.getTriangles();
-  faceMesh.detectStart(capture, (result) => {
-    if (result) {
-      myPose.keypoints = result.length > 0 ? result[0].keypoints : [];
-    }
-  });
-
-  let params = get_url_params();
-  if (params?.has("server")) {
-    setupSocket(params.get("server"));
-  } else {
-    setupSocket("ws://localhost:3005");
-  }
-  startListen();
-
-  setInterval(() => {
-    sendJSON(myPose);
-  }, 200);
-}
-
 function preload() {
   // Load the faceMesh model
   faceMesh = ml5.faceMesh({
@@ -70,10 +43,59 @@ function preload() {
   });
 }
 
+function setup() {
+  createCanvas(windowWidth, windowHeight, WEBGL);
+  setup_fullScreenButton();
+  // Create the video capture and hide the element.
+  capture = createCapture(VIDEO);
+  capture.size(CAPTURE_WIDTH, CAPTURE_HEIGHT);
+  capture.hide();
+  faceConn = faceMesh.getTriangles();
+
+  let params = get_url_params();
+  if (params?.has("server")) {
+    setupSocket(params.get("server"));
+  } else {
+    setupSocket("ws://localhost:3005");
+  }
+  startListen();
+
+  setTimeout(() => {
+    faceMesh.detectStart(capture, (result) => {
+      if (result) {
+        myPose.keypoints = result.length > 0 ? result[0].keypoints : [];
+      }
+    });
+  }, 3000);
+  setInterval(() => {
+    sendJSON(myPose);
+  }, 200);
+}
+
+function setupAsciify() {
+  // Fetch the default `P5Asciifier` instance provided by the library
+  asciifier = p5asciify.asciifier();
+
+  asciifier.fontSize(8); // Set the font size to 8 in the asciifier instance
+
+  // Update the pre-defined 'edge' renderer with the provided options
+  asciifier.renderers().get("brightness").update({
+    enabled: true,
+    characters: " .:-=+*#%@",
+    backgroundColor: "#000000",
+    backgroundColorMode: "fixed",
+    invertMode: false,
+    sobelThreshold: 0.01,
+    sampleThreshold: 16,
+  });
+
+  // The pre-defined 'brightness' renderer is enabled by default and can be updated as well
+}
+
 function draw() {
   background(255);
+  translate(-width / 2, -height / 2, 0);
   image(capture, 0, 0, width, height);
-  myPose.keypoints.length > 0 && drawFigure(myPose, faceConn);
   poseArr.forEach((v) => {
     drawFigure(v, faceConn);
   });
