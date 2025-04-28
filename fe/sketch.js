@@ -19,15 +19,17 @@ function drawFigure(pose, conn) {
   stroke(0);
   strokeWeight(4);
   scale(windowWidth / CAPTURE_WIDTH, windowHeight / CAPTURE_HEIGHT);
-  for (let j = 0; j < conn.length; j++) {
-    let indices = conn[j];
-    let pointAIndex = indices[0];
-    let pointBIndex = indices[1];
-    let pointCIndex = indices[2];
-    let pointA = pose.keypoints[pointAIndex];
-    let pointB = pose.keypoints[pointBIndex];
-    let pointC = pose.keypoints[pointCIndex];
-    triangle(pointA.x, pointA.y, pointB.x, pointB.y, pointC.x, pointC.y);
+  if (pose.keypoints.length > 0) {
+    for (let j = 0; j < conn.length; j++) {
+      let indices = conn[j];
+      let pointAIndex = indices[0];
+      let pointBIndex = indices[1];
+      let pointCIndex = indices[2];
+      let pointA = pose.keypoints[pointAIndex];
+      let pointB = pose.keypoints[pointBIndex];
+      let pointC = pose.keypoints[pointCIndex];
+      triangle(pointA.x, pointA.y, pointB.x, pointB.y, pointC.x, pointC.y);
+    }
   }
   pop();
 }
